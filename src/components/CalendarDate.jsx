@@ -1,5 +1,5 @@
 import React from 'react'
-// import PropTypes from 'prop-types'
+import PropTypes from 'prop-types'
 
 function CalendarDate(props) {
     const {date} = props;
@@ -36,7 +36,7 @@ function CalendarDate(props) {
         {"Ноябрь": 30},
         {"Декабрь": 31}
     ]
-    const months = year % 4 === 0 ? months366 : months365;
+    const months = year % 4 === 0 ? months366 : months365; //високосный год или нет
     const monthsInGenitive = ["Января", "Февраля", "Марта", "Апреля", "Мая", "Июня", 
     "Июля", "Августа", "Сентября", "Октября", "Ноября", "Декабря"]
 
@@ -45,7 +45,7 @@ function CalendarDate(props) {
     
     const dayOfWeek = week[date.getDay()]; // текущий день недели
     const firstDay = new Date(year, date.getMonth(), 1); // первое число текущего месяца, для определения дня недели
-    let daysBefore; //кол-во дней, которые нужно добавить в начале 
+    let daysBefore; //кол-во дней, которые нужно добавить в начале календаря из предыдущего месяца
     
     if (firstDay.getDay() === 0) {
         daysBefore = 6
@@ -54,6 +54,7 @@ function CalendarDate(props) {
         daysBefore = firstDay.getDay() - 1;
     } 
     
+    //формируем список дат и соответсвующий им класс, а также уникальный key
     const listOfDays = [];
 
     if (daysBefore !== 0) {
@@ -75,15 +76,18 @@ function CalendarDate(props) {
         listOfDays.push([i, classVal, listOfDays.length]);
     }
     
-    const lastDayOfMonth = new Date(year, month, listOfDays[listOfDays.length - 1][0]);
-    const lastDayOfWeek = lastDayOfMonth.getDay();
+    const lastDayOfMonth = new Date(year, month, listOfDays[listOfDays.length - 1][0]); //последний день текущего месяца
+    const lastDayOfWeek = lastDayOfMonth.getDay();//день недели последнего дня текущего месяца
 
+    //добавление дней следующего месяца
     if (listOfDays.length % 7 !== 0) {
         //Нужно добавить дни после
         for (let i = 1; i < 7 - lastDayOfWeek + 1; i++) {
             listOfDays.push([i, "ui-datepicker-other-month", listOfDays.length]);
         }     
     }
+    
+    //формирование массива из 7 столбцов
     let exitVal = []
     
     for (let i = 0; i < listOfDays.length/7; i++){
@@ -93,6 +97,14 @@ function CalendarDate(props) {
         }
         exitVal[i] = strOfDays;
     }
+    const col = [
+        [0, ""],
+        [1, ""],
+        [2, ""],
+        [3, ""],
+        [4, ""],
+        [5, "ui-datepicker-week-end"],
+        [6, "ui-datepicker-week-end"]]
     return (
         <div>          
             <div className="ui-datepicker">
@@ -110,15 +122,14 @@ function CalendarDate(props) {
                     </div>
                 </div>
                 <table className="ui-datepicker-calendar">
-                    {/* <colgroup>
-                        <col>
-                        <col>
-                        <col>
-                        <col>
-                        <col>
-                        <col className="ui-datepicker-week-end">
-                        <col className="ui-datepicker-week-end">
-                    </colgroup> */}
+                    <colgroup>
+                        {col.map((item)=> 
+                            <col
+                                key={item[0]}
+                                className={item[1]}>                                
+                            </col>
+                        )}
+                    </colgroup>
                     
                     <thead>
                     <tr>
@@ -139,7 +150,7 @@ function CalendarDate(props) {
                                 {day[0]}
                             </td>)} 
                         </tr>
-                        )}  
+                        )}
                     </tbody>
                 </table>
                 </div>
@@ -153,3 +164,6 @@ CalendarDate.propTypes = {
 
 export default CalendarDate
 
+CalendarDate.propTypes = {
+    date: PropTypes.object.isRequired
+}
